@@ -1,0 +1,7 @@
+gymnasium[atari] 
+ale-py
+tensorboard
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch
+torchvision
+torchaudio
