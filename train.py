@@ -21,9 +21,6 @@ hidden_layer = 128
 # print(observation.shape)
 
 # Constants
-WINDOW_WIDTH, WINDOW_HEIGHT = 1200, 800  # Visible game window size
-WORLD_WIDTH, WORLD_HEIGHT = 1800, 1200  # The size of the larger game world
-FPS = 60
 
 env = gym.make("ALE/Pong-v5", render_mode="rgb_array")
 

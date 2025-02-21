@@ -9,7 +9,8 @@ import time
 from torch.utils.tensorboard import SummaryWriter
 import random
 import os
-from pygame import display
+import pygame
+import cv2
 
 class Agent():
 
@@ -76,7 +77,25 @@ class Agent():
 
                 reward += reward_temp
 
-                if(done):
+                # Try rendering as RGB array
+                frame = self.env.env.env.render()
+
+                # Resize the frame to fit the desired window size
+                resized_frame = cv2.resize(frame, (500, 400))
+
+                # Convert to BGR (OpenCV expects BGR, Gym outputs RGB)
+                resized_frame = cv2.cvtColor(resized_frame, cv2.COLOR_RGB2BGR)
+
+                # Show frame with OpenCV
+                cv2.imshow("Pong AI", resized_frame)
+
+                # Press 'q' to exit
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
+                time.sleep(0.05)
+                
+                if done:
                     break
 
             obs = self.process_observation(next_obs)
