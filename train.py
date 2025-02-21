@@ -31,7 +31,7 @@ env = GrayscaleObservation(env, keep_dim=True)
 
 summary_writer_suffix = f'dqn_lr={learning_rate}_hl={hidden_layer}_mse_loss_bs={batch_size}_double_dqn'
 
-agent = Agent(env, dropout=0.2, hidden_layer=hidden_layer,
+agent = Agent(env, hidden_layer=hidden_layer,
               learning_rate=learning_rate, step_repeat=step_repeat,
               gamma=gamma)
 
