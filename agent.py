@@ -9,10 +9,11 @@ import time
 from torch.utils.tensorboard import SummaryWriter
 import random
 import os
+from pygame import display
 
 class Agent():
 
-    def __init__(self, env, dropout, hidden_layer, learning_rate, step_repeat, gamma) -> None:
+    def __init__(self, env, hidden_layer, learning_rate, step_repeat, gamma) -> None:
 
         self.env = env
 
@@ -28,9 +29,9 @@ class Agent():
 
         self.memory = ReplayBuffer(max_size=500000, input_shape=obs.shape, n_actions=env.action_space.n, device=self.device)
 
-        self.model = Model(action_dim=env.action_space.n, hidden_dim=hidden_layer, dropout=dropout, observation_shape=obs.shape).to(self.device)
+        self.model = Model(action_dim=env.action_space.n, hidden_dim=hidden_layer, observation_shape=obs.shape).to(self.device)
 
-        self.target_model = Model(action_dim=env.action_space.n, hidden_dim=hidden_layer, dropout=dropout, observation_shape=obs.shape).to(self.device)
+        self.target_model = Model(action_dim=env.action_space.n, hidden_dim=hidden_layer, observation_shape=obs.shape).to(self.device)
 
         # Initialize target networks with model parameters
         self.target_model.load_state_dict(self.model.state_dict())
@@ -45,6 +46,42 @@ class Agent():
     def process_observation(self, obs):
         obs = torch.tensor(obs, dtype=torch.float32).permute(2,0,1)  
         return obs
+
+
+    def test(self):
+
+        self.model.load_the_model()
+
+        obs, info = self.env.reset()
+
+        obs = self.process_observation(obs)
+
+        done = False
+
+        episode_reward = 0
+
+        while not done:
+
+            if random.random() < 0.05:
+                action = self.env.action_space.sample()
+            else:
+                q_values = self.model.forward(obs.unsqueeze(0).to(self.device))[0]
+                action = torch.argmax(q_values, dim=-1).item()
+
+            reward = 0
+
+            for i in range(self.step_repeat):
+                reward_temp = 0
+                next_obs, reward_temp, done, truncated, info = self.env.step(action=action)
+
+                reward += reward_temp
+
+                if(done):
+                    break
+
+            obs = self.process_observation(next_obs)
+
+            episode_reward += reward
 
 
     def train(self, episodes, max_episode_steps, summary_writer_suffix, batch_size, epsilon, epsilon_decay, min_epsilon):
@@ -129,7 +166,7 @@ class Agent():
                     if episode_steps % 4 == 0:
                         soft_update(self.target_model, self.model)
 
-            self.model.save_the_model(filename='models/dqn1.pt')
+            self.model.save_the_model()
 
             writer.add_scalar('Score', episode_reward, episode)
             writer.add_scalar('Epsilon', epsilon, episode)

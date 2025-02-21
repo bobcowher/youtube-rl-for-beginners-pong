@@ -4,14 +4,13 @@ import torch.nn.functional as F
 import time
 
 class Model(nn.Module):
-    def __init__(self, action_dim, hidden_dim=256, dropout=0, observation_shape=None):
+    def __init__(self, action_dim, hidden_dim=256, observation_shape=None):
         super(Model, self).__init__()
 
         # CNN layers with a third layer added
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=8, kernel_size=4, stride=2)
         self.conv2 = nn.Conv2d(in_channels=8, out_channels=16, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=2)  # Third convolutional layer
-        self.conv4 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=2)  # Third convolutional layer
 
         # Pooling layer for additional downsampling
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -25,27 +24,24 @@ class Model(nn.Module):
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.fc3 = nn.Linear(hidden_dim, hidden_dim)
         self.output = nn.Linear(hidden_dim, action_dim)
-        self.dropout = dropout
 
         # Initialize weights
         self.apply(self.weights_init)
     
     def calculate_conv_output(self, observation_shape):
         x = torch.zeros(1, *observation_shape)
-        x = self.pool(F.relu(self.conv1(x)))  # Pooling after first conv layer
+        x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))             # No pooling after second to control size
-        x = self.pool(F.relu(self.conv3(x)))  # Pooling after third conv layer
-        x = F.relu(self.conv4(x))             # No pooling after second to control size
+        x = F.relu(self.conv3(x))  # Pooling after third conv layer
 
         return x.view(-1).shape[0]
 
     def forward(self, x):
 
         x = x / 255
-        x = self.pool(F.relu(self.conv1(x)))
+        x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
-        x = self.pool(F.relu(self.conv3(x)))  # Pooling after third conv layer
-        x = F.relu(self.conv4(x)) 
+        x = F.relu(self.conv3(x)) # Pooling after third conv layer
         x = x.view(x.size(0), -1)  # Flatten
         
         # Fully connected layers with optional dropout

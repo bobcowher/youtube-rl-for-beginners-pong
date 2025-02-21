@@ -1,8 +1,6 @@
-import random
-import time
 from agent import Agent
 import gymnasium as gym
-from gymnasium.wrappers import GrayscaleObservation
+from gymnasium.wrappers import GrayscaleObservation, ResizeObservation 
 import ale_py
 
 episodes = 10000
@@ -29,7 +27,10 @@ FPS = 60
 
 env = gym.make("ALE/Pong-v5", render_mode="rgb_array")
 
+env = ResizeObservation(env, (64, 64))
+
 env = GrayscaleObservation(env, keep_dim=True)
+
 
 summary_writer_suffix = f'dqn_lr={learning_rate}_hl={hidden_layer}_mse_loss_bs={batch_size}_double_dqn'
 
