@@ -2,8 +2,9 @@ from agent import Agent
 import gymnasium as gym
 from gymnasium.wrappers import GrayscaleObservation, ResizeObservation 
 import ale_py
+import time
 
-episodes = 10000
+episodes = 10
 max_episode_steps = 10000
 total_steps = 0
 step_repeat = 4
@@ -21,6 +22,7 @@ hidden_layer = 128
 # print(observation.shape)
 
 # Constants
+start_time = time.perf_counter()
 
 env = gym.make("ALE/Pong-v5", render_mode="rgb_array")
 
@@ -41,5 +43,11 @@ agent = Agent(env, hidden_layer=hidden_layer,
 agent.train(episodes=episodes, max_episode_steps=max_episode_steps, summary_writer_suffix=summary_writer_suffix + "-phase-1",
             batch_size=batch_size, epsilon=epsilon, epsilon_decay=epsilon_decay,
             min_epsilon=min_epsilon)
+
+end_time = time.perf_counter()
+
+elapsed_time = end_time - start_time
+
+print(f"Elapsed time was: {elapsed_time}")
     
 
