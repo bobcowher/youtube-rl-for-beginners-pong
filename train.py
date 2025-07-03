@@ -4,7 +4,7 @@ from gymnasium.wrappers import GrayscaleObservation, ResizeObservation
 import ale_py
 import time
 
-episodes = 10
+episodes = 100
 max_episode_steps = 10000
 total_steps = 0
 step_repeat = 4
